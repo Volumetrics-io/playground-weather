@@ -4,40 +4,56 @@
 <head>
   <meta charset="utf-8">
   <title>Weather</title>
-  <meta name="description" content="MR.js example">
   <script src="https://cdn.jsdelivr.net/gh/volumetrics-io/mrjs@latest/dist/build.js"></script>
   <style>
+    * {
+      padding: 0;
+      margin: 0;
+      border: 0;
+    }
+
     mr-app * {
       display: none;
     }
   </style>
+
 </head>
 
 <body>
-  <button onclick="run()">Get weather</button>
-  <div id="weatherdata"></div>
+  <mr-app camera="camera: orthographic">
+    <mr-surface>
+      <mr-container>
+        <mr-panel padding="0.01" id="affordance">
+          <mr-text id="result" text-style="size: 0.03; vertical: center">Get geolocation</mr-text>
+        </mr-panel>
+      </mr-container>
+    </mr-surface>
+  </mr-app>
+</body>
 
-  <script>
-    const run = () => {
-      navigator.geolocation.getCurrentPosition((pos) => {
+<script>
 
-        document.querySelector("#weatherdata").innerHTML = "fetching";
-        const endpoint = "https://fcc-weather-api.glitch.me/api/current?lat=" + pos.coords.latitude + "&lon=" + pos.coords.longitude;
+  document.querySelector('#affordance').addEventListener('click', (event) => {
 
-        fetch(endpoint)
-          .then(response => response.json())
-          .then(data => {
-            console.log(data);
-            document.getElementById("weatherdata").innerHTML = `
+    document.getElementById("result").innerHTML = `Waiting for location`
+
+    // Request browser location
+    navigator.geolocation.getCurrentPosition((pos) => {
+
+      document.querySelector("#result").innerHTML = "Fetching weather";
+      const endpoint = "https://fcc-weather-api.glitch.me/api/current?lat=" + pos.coords.latitude + "&lon=" + pos.coords.longitude;
+
+      fetch(endpoint)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          document.getElementById("result").innerHTML = `
 <h1>${data.name}, ${data.sys.country}</h1>
 <p>${data.main.temp}°C</p>
-<p>Desc: ${data.weather[0].description}</p>
-            `;
-          });
-      });
-    }
-  </script>
-
-</body>
+<p>Desc: ${data.weather[0].description}</p>`;
+        });
+    });
+  });
+</script>
 
 </html>
